@@ -80,7 +80,6 @@ def main():
         user_config[user] = [username, password]
 
     with open(output_file, 'w') as f:
-        print(f'Dumping usernames and passwords in {output_file}')
         f.write(json.dumps(user_config))
 
 

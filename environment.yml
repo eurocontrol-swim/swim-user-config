@@ -37,5 +37,4 @@ dependencies:
     - click==7.0
     - idna==2.8
     - requests==2.22.0
-    - rest-client==0.0.6
     - urllib3==1.25.5

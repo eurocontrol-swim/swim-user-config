@@ -1,0 +1,8 @@
+name: swim-user_config
+dependencies:
+- python
+- pytest
+- pytest-cov
+- pip:
+  - click
+  - git+https://git@bitbucket.org/antavelos-eurocontrol/rest-client.git

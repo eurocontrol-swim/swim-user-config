@@ -27,6 +27,8 @@ http://opensource.org/licenses/BSD-3-Clause
 
 Details on EUROCONTROL: http://www.eurocontrol.int
 """
+import json
+import sys
 from getpass import getpass
 
 from swim_user_config import pwned_passwords
@@ -55,6 +57,12 @@ def is_strong(password: str) -> bool:
 
 
 def main():
+    if not len(sys.argv) == 2:
+        print('Output file not provided')
+        return
+
+    output_file = sys.argv[1]
+
     print('SWIM User Configuration')
     print('-----------------------\n')
 
@@ -69,9 +77,11 @@ def main():
 
             print('The password is not strong enough. Please try again:')
 
-        user_config[user] = (username, password)
+        user_config[user] = [username, password]
 
-    print(user_config)
+    with open(output_file, 'w') as f:
+        print(f'Dumping usernames and passwords in {output_file}')
+        f.write(json.dumps(user_config))
 
 
 if __name__ == '__main__':

@@ -17,4 +17,4 @@ RUN set -x \
     && pip install /source \
     && rm -rf /source
 
-CMD ["python", "/app/swim_user_config/main.py"]
+CMD ["python", "/app/swim_user_config/main.py", "/tmp/passwords.json"]

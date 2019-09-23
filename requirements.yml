@@ -3,6 +3,7 @@ dependencies:
 - python
 - pytest
 - pytest-cov
+- PyYAML
 - pip:
   - click
   - requests

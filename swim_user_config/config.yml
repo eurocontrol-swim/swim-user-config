@@ -1,0 +1,10 @@
+
+USER_ENV_FILE_PATHS:
+  DB:
+    - "/tmp/db.env"
+  SM_ADMIN:
+    - "/tmp/sm_admin.env"
+  SWIM_ADSB:
+    - "/tmp/swim_adsb.env"
+  SWIM_EXPLORER:
+    - "/tmp/swim_explorer.env"

@@ -27,13 +27,18 @@ http://opensource.org/licenses/BSD-3-Clause
 
 Details on EUROCONTROL: http://www.eurocontrol.int
 """
-import json
-import sys
 from getpass import getpass
+from typing import Any, Dict, Union, List, Type, Tuple
+
+import yaml
+from pkg_resources import resource_filename
 
 from swim_user_config import pwned_passwords
 
+
 __author__ = "EUROCONTROL (SWIM)"
+
+ConfigType = Dict[str, Dict[str, List[str]]]
 
 MIN_LENGTH = 5
 
@@ -45,7 +50,7 @@ USERS = [
 ]
 
 
-def is_strong(password: str) -> bool:
+def _is_strong(password: str) -> bool:
     """
     Performs conformance checks on the provided password:
         1. it should not be less that MIN_LENGTH
@@ -56,31 +61,72 @@ def is_strong(password: str) -> bool:
     return len(password) >= MIN_LENGTH and not pwned_passwords.password_has_been_pwned(password)
 
 
+def _load_config(filename: str) -> Union[ConfigType, None]:
+    """
+
+    :param filename:
+    :return:
+    """
+    with open(filename) as f:
+        obj = yaml.load(f, Loader=yaml.FullLoader)
+
+    return obj or None
+
+
+def _dump_credentials(user_prefix: str, username: str, password: str, path: str) -> None:
+    """
+
+    :param user_prefix:
+    :param username:
+    :param password:
+    :param path:
+    """
+    with open(path, 'a') as f:
+        f.write(f'export {user_prefix}_USERNAME={username}\n')
+        f.write(f'export {user_prefix}_PASSWORD={password}\n')
+
+
+def _get_user_credentials(user_prefix: str) -> Tuple[str, str]:
+    """
+
+    :param user_prefix:
+    :return:
+    """
+    username = input(f"{user_prefix} (username): ")
+    password = getpass(prompt=f"{user_prefix} (password): ")
+
+    while not _is_strong(password):
+        print('The password is not strong enough. Please try again:')
+        password = getpass(prompt=f"{user_prefix} (password): ")
+
+    return username, password
+
+
+def _get_all_credentials(user_prefixes: List[str]) -> Dict[str, Tuple[str, str]]:
+    """
+
+    :param user_paths:
+    :return:
+    """
+    result = {user_prefix: _get_user_credentials(user_prefix) for user_prefix in user_prefixes}
+
+    return result
+
+
 def main():
-    if not len(sys.argv) == 2:
-        print('Output file not provided')
-        return
+    app_config = _load_config(resource_filename(__name__, 'config.yml'))
 
-    output_file = sys.argv[1]
+    if app_config is None:
+        print("Error while loading config file")
+        exit(0)
 
-    print('SWIM User Configuration')
-    print('-----------------------\n')
+    user_paths = app_config['USER_ENV_FILE_PATHS']
 
-    user_config = {}
+    all_credentials = _get_all_credentials(list(user_paths.keys()))
 
-    for user in USERS:
-        username = input(f"{user} (username): ")
-        while True:
-            password = getpass(prompt=f"{user} (password): ")
-            if is_strong(password):
-                break
-
-            print('The password is not strong enough. Please try again:')
-
-        user_config[user] = [username, password]
-
-    with open(output_file, 'w') as f:
-        f.write(json.dumps(user_config))
+    for user_prefix, (username, password) in all_credentials.items():
+        for path in user_paths[user_prefix]:
+            _dump_credentials(user_prefix, username, password, path)
 
 
 if __name__ == '__main__':

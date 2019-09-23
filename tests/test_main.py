@@ -45,4 +45,4 @@ def test_is_strong(password, password_has_been_pwned, password_is_strong):
     main.MIN_LENGTH = 5
 
     with mock.patch('swim_user_config.pwned_passwords.password_has_been_pwned', return_value=password_has_been_pwned):
-        assert password_is_strong == main.is_strong(password)
+        assert password_is_strong == main._is_strong(password)

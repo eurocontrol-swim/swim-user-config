@@ -27,8 +27,11 @@ http://opensource.org/licenses/BSD-3-Clause
 
 Details on EUROCONTROL: http://www.eurocontrol.int
 """
+import os
+import sys
+from collections import namedtuple
 from getpass import getpass
-from typing import Any, Dict, Union, List, Type, Tuple
+from typing import Dict, Union, List
 
 import yaml
 from pkg_resources import resource_filename
@@ -38,16 +41,10 @@ from swim_user_config import pwned_passwords
 
 __author__ = "EUROCONTROL (SWIM)"
 
-ConfigType = Dict[str, Dict[str, List[str]]]
+MIN_LENGTH = 10
 
-MIN_LENGTH = 5
 
-USERS = [
-    'DB',
-    'SM_ADMIN',
-    'SWIM_ADSB',
-    'SWIM_EXPLORER',
-]
+User = namedtuple('User', 'id, username, password')
 
 
 def _is_strong(password: str) -> bool:
@@ -61,7 +58,7 @@ def _is_strong(password: str) -> bool:
     return len(password) >= MIN_LENGTH and not pwned_passwords.password_has_been_pwned(password)
 
 
-def _load_config(filename: str) -> Union[ConfigType, None]:
+def _load_config(filename: str) -> Union[Dict[str, Dict[str, List[str]]], None]:
     """
 
     :param filename:
@@ -73,60 +70,55 @@ def _load_config(filename: str) -> Union[ConfigType, None]:
     return obj or None
 
 
-def _dump_credentials(user_prefix: str, username: str, password: str, path: str) -> None:
+def _dump_user(user: User, path: str) -> None:
     """
 
-    :param user_prefix:
-    :param username:
-    :param password:
+    :param user:
     :param path:
     """
     with open(path, 'a') as f:
-        f.write(f'export {user_prefix}_USERNAME={username}\n')
-        f.write(f'export {user_prefix}_PASSWORD={password}\n')
+        f.write(f'export {user.id}_USERNAME={user.username}\n')
+        f.write(f'export {user.id}_PASSWORD={user.password}\n')
 
 
-def _get_user_credentials(user_prefix: str) -> Tuple[str, str]:
+def _get_user(user_id: str) -> User:
     """
 
-    :param user_prefix:
+    :param user_id:
     :return:
     """
-    username = input(f"{user_prefix} (username): ")
-    password = getpass(prompt=f"{user_prefix} (password): ")
+    username = input(f"{user_id} (username): ")
+    password = getpass(prompt=f"{user_id} (password): ")
 
     while not _is_strong(password):
         print('The password is not strong enough. Please try again:')
-        password = getpass(prompt=f"{user_prefix} (password): ")
+        password = getpass(prompt=f"{user_id} (password): ")
 
-    return username, password
-
-
-def _get_all_credentials(user_prefixes: List[str]) -> Dict[str, Tuple[str, str]]:
-    """
-
-    :param user_paths:
-    :return:
-    """
-    result = {user_prefix: _get_user_credentials(user_prefix) for user_prefix in user_prefixes}
-
-    return result
+    return User(id=user_id, username=username, password=password)
 
 
 def main():
-    app_config = _load_config(resource_filename(__name__, 'config.yml'))
 
-    if app_config is None:
+    # if no base path is provided the CWD is used
+    base_path = os.path.abspath(sys.argv[1]) if len(sys.argv) == 2 else os.getcwd()
+
+    config = _load_config(resource_filename(__name__, 'config.yml'))
+
+    if config is None:
         print("Error while loading config file")
         exit(0)
 
-    user_paths = app_config['USER_ENV_FILE_PATHS']
+    users = [_get_user(user_id) for user_id in config['ENV_FILE_PATHS_PER_USER'].keys()]
 
-    all_credentials = _get_all_credentials(list(user_paths.keys()))
+    for user in users:
+        for path in config['ENV_FILE_PATHS_PER_USER'][user.id]:
+            full_path = os.path.join(base_path, path)
 
-    for user_prefix, (username, password) in all_credentials.items():
-        for path in user_paths[user_prefix]:
-            _dump_credentials(user_prefix, username, password, path)
+            try:
+                _dump_user(user, os.path.join(base_path, path))
+            except OSError as e:
+                print(f"Error while saving user {user.id} in {full_path}: {str(e)}. Skipping...")
+                continue
 
 
 if __name__ == '__main__':

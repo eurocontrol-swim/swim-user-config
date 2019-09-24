@@ -1,15 +1,15 @@
 
-# Each key of the below dictionary represents the prefix of a SWIM related user whose credentials will be saved in
-# every file (.env) of its provided file list in the form of:
-# export <USER_PREFIX>_USERNAME=<provided_username>
-# export <USER_PREFIX>_PASSWORD=<provided_password>
+# Each key of the below dictionary represents the id of a SWIM related user whose credentials will be saved in
+# every file (.env) of its provided file list in the following format:
+# <USER_ID>_USERNAME=<provided_username>
+# <USER_ID>_PASSWORD=<provided_password>
 
 ENV_FILE_PATHS_PER_USER:
   DB:
-    - "./db.env"
+    - "/tmp/db.env"
   SM_ADMIN:
-    - "./sm_admin.env"
+    - "/tmp/sm_admin.env"
   SWIM_ADSB:
-    - "./swim_adsb.env"
+    - "/tmp/swim_adsb.env"
   SWIM_EXPLORER:
-    - "./swim_explorer.env"
+    - "/tmp/swim_explorer.env"

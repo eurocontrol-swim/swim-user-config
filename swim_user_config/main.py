@@ -27,8 +27,6 @@ http://opensource.org/licenses/BSD-3-Clause
 
 Details on EUROCONTROL: http://www.eurocontrol.int
 """
-import os
-import sys
 from collections import namedtuple
 from getpass import getpass
 from typing import Dict, Union, List
@@ -38,11 +36,9 @@ from pkg_resources import resource_filename
 
 from swim_user_config import pwned_passwords
 
-
 __author__ = "EUROCONTROL (SWIM)"
 
 MIN_LENGTH = 10
-
 
 User = namedtuple('User', 'id, username, password')
 
@@ -55,7 +51,8 @@ def _is_strong(password: str) -> bool:
     :param password:
     :return:
     """
-    return len(password) >= MIN_LENGTH and not pwned_passwords.password_has_been_pwned(password)
+    return len(password) >= MIN_LENGTH \
+        and not pwned_passwords.password_has_been_pwned(password)
 
 
 def _load_config(filename: str) -> Union[Dict[str, Dict[str, List[str]]], None]:
@@ -77,11 +74,11 @@ def _dump_user(user: User, path: str) -> None:
     :param path:
     """
     with open(path, 'a') as f:
-        f.write(f'export {user.id}_USERNAME={user.username}\n')
-        f.write(f'export {user.id}_PASSWORD={user.password}\n')
+        f.write(f'\n{user.id}_USERNAME={user.username}\n')
+        f.write(f'\n{user.id}_PASSWORD={user.password}\n')
 
 
-def _get_user(user_id: str) -> User:
+def _prompt_for_user(user_id: str) -> User:
     """
 
     :param user_id:
@@ -99,25 +96,20 @@ def _get_user(user_id: str) -> User:
 
 def main():
 
-    # if no base path is provided the CWD is used
-    base_path = os.path.abspath(sys.argv[1]) if len(sys.argv) == 2 else os.getcwd()
-
     config = _load_config(resource_filename(__name__, 'config.yml'))
 
     if config is None:
         print("Error while loading config file")
         exit(0)
 
-    users = [_get_user(user_id) for user_id in config['ENV_FILE_PATHS_PER_USER'].keys()]
+    users = [_prompt_for_user(user_id) for user_id in config['ENV_FILE_PATHS_PER_USER'].keys()]
 
     for user in users:
         for path in config['ENV_FILE_PATHS_PER_USER'][user.id]:
-            full_path = os.path.join(base_path, path)
-
             try:
-                _dump_user(user, os.path.join(base_path, path))
+                _dump_user(user, path)
             except OSError as e:
-                print(f"Error while saving user {user.id} in {full_path}: {str(e)}. Skipping...")
+                print(f"Error while saving user {user.id} in {path}: {str(e)}. Skipping...")
                 continue
 
 

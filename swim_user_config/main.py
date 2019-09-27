@@ -86,14 +86,14 @@ def _dump_user(user: User, path: str) -> None:
         f.write(f'\n{username}\n{password}')
 
 
-def _prompt_for_user(user_id: str, default_name: str) -> User:
+def _prompt_for_user(user_id: str, default_user: str) -> User:
     """
 
     :param user_id:
-    :param default_name:
+    :param default_user:
     :return:
     """
-    username = input(f"{user_id}_USER [{default_name}]: ") or default_name
+    username = input(f"{user_id}_USER [{default_user}]: ") or default_user
     password = getpass(prompt=f"{user_id}_PASS: ")
 
     while not _is_strong(password):
@@ -111,7 +111,7 @@ def main():
         print("Error while loading config file")
         exit(0)
 
-    users = [_prompt_for_user(user_id, data['default_name'])
+    users = [_prompt_for_user(user_id, data['default_user'])
              for user_id, data in config['ENV_FILE_PATHS_PER_USER'].items()]
 
     for user in users:

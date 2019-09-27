@@ -6,18 +6,18 @@
 
 ENV_FILE_PATHS_PER_USER:
   DB:
-    default_name: swim
+    default_user: swim
     files:
-      - "/tmp/db.env"
-#  SM_ADMIN:
-#    default_name: swim-admin
-#    files:
-#      - "/tmp/sm_admin.env"
-#  SWIM_ADSB:
-#    default_name: swim-adsb
-#    files:
-#      - "/tmp/swim_adsb.env"
-#  SWIM_EXPLORER:
-#    default_name: swim-explorer
-#    files:
-#      - "/tmp/swim_explorer.env"
+      - /tmp/db.env
+  SM_ADMIN:
+    default_user: swim-admin
+    files:
+      - "/tmp/sm_admin.env"
+  SWIM_ADSB:
+    default_user: swim-adsb
+    files:
+      - "/tmp/swim_adsb.env"
+  SWIM_EXPLORER:
+    default_user: swim-explorer
+    files:
+      - "/tmp/swim_explorer.env"

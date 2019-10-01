@@ -1,11 +1,19 @@
 
 # Each key of the below dictionary represents the id of a SWIM related user whose credentials will be saved in a file
-for further use
+# for further use
 # <USER_ID>_USER=<provided_username>
 # <USER_ID>_PASS=<provided_password>
 
 USERS:
-  DB: swim
-  SM_ADMIN: swim-sm-admin
-  SWIM_ADSB: swim-adsb
-  SWIM_EXPLORER: swim-explorer
+  DB:
+    description: Database user
+    default_user: swim
+  SM_ADMIN:
+    description: Subscription Manager admin user
+    default_user: swim-sm-admin
+  SWIM_ADSB:
+    description: SWIM ADSB user for Subscription Manager
+    default_user: swim-adsb
+  SWIM_EXPLORER:
+    description: SWIM Explorer user for Subscription Manager
+    default_user: swim-explorer

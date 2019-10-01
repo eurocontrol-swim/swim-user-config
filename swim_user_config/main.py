@@ -27,9 +27,8 @@ http://opensource.org/licenses/BSD-3-Clause
 
 Details on EUROCONTROL: http://www.eurocontrol.int
 """
-import os
 import sys
-from collections import namedtuple
+from dataclasses import dataclass
 from getpass import getpass
 from typing import Dict, Union, Any
 
@@ -42,7 +41,13 @@ __author__ = "EUROCONTROL (SWIM)"
 
 MIN_LENGTH = 10
 
-User = namedtuple('User', 'id, username, password')
+
+@dataclass
+class User:
+    id: str
+    description: str
+    username: str
+    password: Union[str, None]
 
 
 def _is_strong(password: str) -> bool:
@@ -69,21 +74,21 @@ def _load_config(filename: str) -> Union[Dict[str, Any], None]:
     return obj or None
 
 
-def _prompt_for_user(user_id: str, default_user: str) -> User:
+def _prompt_for_user(user: User) -> User:
     """
 
-    :param user_id:
-    :param default_user:
+    :param user:
     :return:
     """
-    username = input(f"{user_id}_USER [{default_user}]: ") or default_user
-    password = getpass(prompt=f"{user_id}_PASS: ")
+    print(f'\n{user.description}')
+    user.username = input(f" username [{user.username}]: ") or user.username
+    user.password = getpass(prompt=f" password: ")
 
-    while not _is_strong(password):
+    while not _is_strong(user.password):
         print('The password is not strong enough. Please try again:')
-        password = getpass(prompt=f"{user_id} (password): ")
+        user.password = getpass(prompt=f" password: ")
 
-    return User(id=user_id, username=username, password=password)
+    return user
 
 
 def main():
@@ -96,8 +101,13 @@ def main():
         print("Error while loading config file")
         exit(0)
 
-    users = [_prompt_for_user(user_id, default_user=default_user)
-             for user_id, default_user in config['USERS'].items()]
+    users = [User(id=user_id,
+                  description=data.get('description'),
+                  username=data.get('default_user'),
+                  password=None)
+             for user_id, data in config['USERS'].items()]
+
+    users = [_prompt_for_user(user) for user in users]
 
     with open(output_file, 'w') as f:
         for user in users:

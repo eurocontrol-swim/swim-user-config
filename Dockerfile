@@ -5,6 +5,9 @@ LABEL maintainer="SWIM EUROCONTROL <http://www.eurocontrol.int>"
 ENV PATH="/opt/conda/envs/app/bin:$PATH"
 
 RUN mkdir -p /app
+RUN touch /app/swim.env
+RUN chmod 664 /app/swim.env
+
 WORKDIR /app
 
 COPY requirements.yml requirements.yml

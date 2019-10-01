@@ -1,23 +1,11 @@
 
-# Each key of the below dictionary represents the id of a SWIM related user whose credentials will be saved in
-# every file (.env) of its provided file list in the following format:
+# Each key of the below dictionary represents the id of a SWIM related user whose credentials will be saved in a file
+for further use
 # <USER_ID>_USER=<provided_username>
 # <USER_ID>_PASS=<provided_password>
 
-ENV_FILE_PATHS_PER_USER:
-  DB:
-    default_user: swim
-    files:
-      - /tmp/db.env
-  SM_ADMIN:
-    default_user: swim-admin
-    files:
-      - "/tmp/sm_admin.env"
-  SWIM_ADSB:
-    default_user: swim-adsb
-    files:
-      - "/tmp/swim_adsb.env"
-  SWIM_EXPLORER:
-    default_user: swim-explorer
-    files:
-      - "/tmp/swim_explorer.env"
+USERS:
+  DB: swim
+  SM_ADMIN: swim-sm-admin
+  SWIM_ADSB: swim-adsb
+  SWIM_EXPLORER: swim-explorer

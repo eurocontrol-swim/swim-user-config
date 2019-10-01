@@ -27,9 +27,11 @@ http://opensource.org/licenses/BSD-3-Clause
 
 Details on EUROCONTROL: http://www.eurocontrol.int
 """
+import os
+import sys
 from collections import namedtuple
 from getpass import getpass
-from typing import Dict, Union, List, Optional, Any
+from typing import Dict, Union, Any
 
 import yaml
 from pkg_resources import resource_filename
@@ -67,25 +69,6 @@ def _load_config(filename: str) -> Union[Dict[str, Any], None]:
     return obj or None
 
 
-def _dump_user(user: User, path: str) -> None:
-    """
-
-    :param user:
-    :param path:
-    """
-    with open(path, 'r') as f:
-        lines = f.read().split('\n')
-
-    with open(path, 'a') as f:
-        username = f'{user.id}_USER={user.username}'
-        password = f'{user.id}_PASS={user.password}'
-
-        if username in lines:
-            return
-
-        f.write(f'\n{username}\n{password}')
-
-
 def _prompt_for_user(user_id: str, default_user: str) -> User:
     """
 
@@ -105,22 +88,21 @@ def _prompt_for_user(user_id: str, default_user: str) -> User:
 
 def main():
 
+    output_file = sys.argv[1] if len(sys.argv) == 2 else '.env'
+
     config = _load_config(resource_filename(__name__, 'config.yml'))
 
     if config is None:
         print("Error while loading config file")
         exit(0)
 
-    users = [_prompt_for_user(user_id, data['default_user'])
-             for user_id, data in config['ENV_FILE_PATHS_PER_USER'].items()]
+    users = [_prompt_for_user(user_id, default_user=default_user)
+             for user_id, default_user in config['USERS'].items()]
 
-    for user in users:
-        for path in config['ENV_FILE_PATHS_PER_USER'][user.id]['files']:
-            try:
-                _dump_user(user, path)
-            except OSError as e:
-                print(f"Error while saving user {user.id} in {path}: {str(e)}. Skipping...")
-                continue
+    with open(output_file, 'w') as f:
+        for user in users:
+            f.write(f'{user.id}_USER={user.username}\n')
+            f.write(f'{user.id}_PASS={user.password}\n')
 
 
 if __name__ == '__main__':

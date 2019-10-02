@@ -34,8 +34,7 @@ from typing import Dict, Union, Any
 
 import yaml
 from pkg_resources import resource_filename
-
-from swim_user_config import pwned_passwords
+from swim_backend.auth.passwords import is_strong
 
 __author__ = "EUROCONTROL (SWIM)"
 
@@ -48,18 +47,6 @@ class User:
     description: str
     username: str
     password: Union[str, None]
-
-
-def _is_strong(password: str) -> bool:
-    """
-    Performs conformance checks on the provided password:
-        1. it should not be less that MIN_LENGTH
-        2. it should not be among the pwned passwords that can be found in haveibeenpwned
-    :param password:
-    :return:
-    """
-    return len(password) >= MIN_LENGTH \
-        and not pwned_passwords.password_has_been_pwned(password)
 
 
 def _load_config(filename: str) -> Union[Dict[str, Any], None]:
@@ -84,7 +71,7 @@ def _prompt_for_user(user: User) -> User:
     user.username = input(f" username [{user.username}]: ") or user.username
     user.password = getpass(prompt=f" password: ")
 
-    while not _is_strong(user.password):
+    while not is_strong(user.password, MIN_LENGTH):
         print('The password is not strong enough. Please try again:')
         user.password = getpass(prompt=f" password: ")
 

@@ -38,8 +38,6 @@ from swim_backend.auth.passwords import is_strong
 
 __author__ = "EUROCONTROL (SWIM)"
 
-MIN_LENGTH = 10
-
 
 @dataclass
 class User:
@@ -71,7 +69,7 @@ def _prompt_for_user(user: User) -> User:
     user.username = input(f" username [{user.username}]: ") or user.username
     user.password = getpass(prompt=f" password: ")
 
-    while not is_strong(user.password, MIN_LENGTH):
+    while not is_strong(user.password):
         print('The password is not strong enough. Please try again:')
         user.password = getpass(prompt=f" password: ")
 

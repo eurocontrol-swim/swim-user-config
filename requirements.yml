@@ -6,4 +6,4 @@ dependencies:
 - PyYAML
 - pip:
   - requests
-  - git+https://git@bitbucket.org/antavelos-eurocontrol/swim-backend.git
+  - git+https://git@github.com/eurocontrol-swim/swim-backend.git

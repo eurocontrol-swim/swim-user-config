@@ -1,4 +1,4 @@
-FROM swim-base.conda
+FROM continuumio/miniconda3:latest
 
 LABEL maintainer="SWIM EUROCONTROL <http://www.eurocontrol.int>"
 

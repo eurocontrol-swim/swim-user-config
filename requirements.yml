@@ -3,7 +3,3 @@ dependencies:
 - python
 - pytest
 - pytest-cov
-- PyYAML
-- pip:
-  - requests
-  - git+https://git@github.com/eurocontrol-swim/swim-backend.git
